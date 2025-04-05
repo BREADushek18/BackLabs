@@ -47,8 +47,10 @@ const loginUser = async (
   return user;
 };
 
-const generateToken = (userId: string) => {
-  return jwt.sign({ userId }, process.env.JWT_SECRET!, { expiresIn: "1h" });
+const generateToken = (userId: string, role: "student" | "teacher") => {
+  return jwt.sign({ userId, role }, process.env.JWT_SECRET!, {
+    expiresIn: "1h",
+  });
 };
 
 const getUserById = async (userId: string) => {

@@ -1,17 +1,20 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
-declare module "express" {
-  interface Request {
-    userId?: string;
+declare global {
+  namespace Express {
+    interface Request {
+      userId?: string;
+      role?: "student" | "teacher";
+    }
   }
 }
 
-export const authenticateJWT = async (
+export const authenticateJWT = (
   req: Request,
   res: Response,
   next: NextFunction
-) => {
+): void => {
   const token = req.header("Authorization")?.split(" ")[1];
 
   if (!token) {
@@ -20,19 +23,19 @@ export const authenticateJWT = async (
   }
 
   try {
-    const decoded = jwt.verify(token!, process.env.JWT_SECRET!) as {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
       userId: string;
+      role: "student" | "teacher";
     };
 
     req.userId = decoded.userId;
-
+    req.role = decoded.role;
     next();
   } catch (err) {
     if (err instanceof jwt.JsonWebTokenError) {
-      res.status(401).json({ message: "Invalid token." });
+      res.status(403).json({ message: "Invalid token." });
     } else {
-      res.status(404).json({ message: "User not found." });
+      res.status(500).json({ message: "Internal server error" });
     }
-    return;
   }
 };

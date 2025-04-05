@@ -19,7 +19,7 @@ const register = async (req: Request, res: Response) => {
     }
 
     await user.save();
-    const token = authService.generateToken(user._id.toString());
+    const token = authService.generateToken(user._id.toString(), role);
     res.status(201).json({ token });
   } catch (err) {
     const error = err as Error;
@@ -46,44 +46,51 @@ const login = async (req: Request, res: Response) => {
     return;
   }
 
-  const token = authService.generateToken(user._id.toString());
+  const token = authService.generateToken(user._id.toString(), role);
   res.status(200).json({ token });
 };
 
-const getProfile = async (req: Request, res: Response) => {
+const getProfile = async (req: Request, res: Response): Promise<Response> => {
   try {
-    const userId = req.userId;
-    if (!userId) {
-      res.status(401).json({ error: "Unauthorized" });
-      return;
+    const { userId, role } = req;
+
+    if (!userId || !role) {
+      return res.status(401).json({ error: "Unauthorized" });
     }
 
-    const user = await authService.getUserById(userId);
+    const model = role === "student" ? StudentModel : TeacherModel;
+    const user = await model.findById(userId).select("-password").lean();
+
     if (!user) {
-      res.status(404).json({ error: "User not found" });
-      return;
+      return res.status(404).json({ error: "User not found" });
     }
 
-    res.status(200).json(user);
+    return res.status(200).json({ ...user, role });
   } catch (err) {
     console.error("Error in getProfile:", err);
-    res.status(500).json({ error: "Internal server error" });
+    return res.status(500).json({ error: "Internal server error" });
   }
 };
 
-const deleteUser = async (req: Request, res: Response) => {
+const deleteUser = async (req: Request, res: Response): Promise<Response> => {
   try {
-    const userId = req.userId;
-    if (!userId) {
-      res.status(401).json({ error: "Unauthorized" });
-      return;
+    const { userId, role } = req;
+
+    if (!userId || !role) {
+      return res.status(401).json({ error: "Unauthorized" });
     }
 
-    await authService.deleteUser(userId);
-    res.status(204).send();
+    const model = role === "student" ? StudentModel : TeacherModel;
+    const result = await model.findByIdAndDelete(userId);
+
+    if (!result) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    return res.status(204).send();
   } catch (err) {
     console.error("Error in deleteUser:", err);
-    res.status(500).json({ error: "Internal server error" });
+    return res.status(500).json({ error: "Internal server error" });
   }
 };
 
