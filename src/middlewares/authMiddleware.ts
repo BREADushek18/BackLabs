@@ -1,9 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import multer, { FileFilterCallback } from "multer";
+
 
 declare global {
   namespace Express {
     interface Request {
+      file?: multer.File;
       userId?: string;
       role?: "student" | "teacher";
     }
