@@ -5,13 +5,19 @@ Backend-приложение для образовательной платфо�
 
 ## Установка
 
-### 1. Установка зависимостей
+### 1. Копирование репозитория и установка зависимостей
 
-С использованием npm:
+Для клонирования репозитория используйте команду:
+
 ```bash
-npm install express mongoose
-npm install -D typescript @types/node @types/express
-npm install -D ts-node nodemon
+git clone https://github.com/your-username/project-name.git
+cd project-name
+```
+
+Введите команду для установки зависимостей с помощью **npm**:
+
+```bash
+npm i
 ```
 ### 2. Настройка базы данных
 
