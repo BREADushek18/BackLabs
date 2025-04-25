@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import { StudentModel } from "../models/student";
 import { TeacherModel } from "../models/teacher";
-import { IStudent, ITeacher } from "../types";
+import { IStudent, ITeacher } from "../types/types";
 
 const registerUser = async (
   firstName: string,

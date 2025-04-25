@@ -2,24 +2,29 @@ import { Request, Response } from "express";
 import { StudentModel } from "../models/student";
 import { TeacherModel } from "../models/teacher";
 import { authService } from "../services/authService";
-import { IStudent, ITeacher } from "../types";
+import { IStudent, ITeacher } from "../types/types";
 
 const register = async (req: Request, res: Response) => {
   try {
     const { firstName, lastName, username, password, role } = req.body;
 
-    let user;
-    if (role === "student") {
-      user = new StudentModel({ firstName, lastName, username, password });
-    } else if (role === "teacher") {
-      user = new TeacherModel({ firstName, lastName, username, password });
-    } else {
-      res.status(400).json({ error: "Invalid role" });
-      return;
+    if (!firstName || !lastName || !username || !password || !role) {
+      return res.status(400).json({ error: "All fields are required" });
     }
 
-    await user.save();
+    if (role !== "student" && role !== "teacher") {
+      return res.status(400).json({ error: "Invalid role" });
+    }
+
+    const user = await authService.registerUser(
+      firstName,
+      lastName,
+      username,
+      password,
+      role
+    );
     const token = authService.generateToken(user._id.toString(), role);
+
     res.status(201).json({ token });
   } catch (err) {
     const error = err as Error;

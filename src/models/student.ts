@@ -1,6 +1,6 @@
 import { model, Schema } from "mongoose";
 import bcrypt from "bcrypt";
-import { IStudent } from "../types";
+import { IStudent } from "../types/types";
 
 const studentSchema = new Schema<IStudent>({
   firstName: {

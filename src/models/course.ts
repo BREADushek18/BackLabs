@@ -1,6 +1,6 @@
 import mongoose, { Schema } from "mongoose";
 import slugify from "slugify";
-import { ICourse } from "../types";
+import { ICourse } from "../types/types";
 
 const courseSchema = new Schema<ICourse>({
   title: { type: String, required: true },

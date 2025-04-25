@@ -1,6 +1,6 @@
 import { model, Schema } from "mongoose";
 import bcrypt from "bcrypt";
-import { ITeacher } from "../types";
+import { ITeacher } from "../types/types";
 
 const teacherSchema = new Schema<ITeacher>({
   firstName: {
