@@ -1,49 +1,55 @@
 import multer from "multer";
-import { v4 as uuidv4 } from "uuid";
 import path from "path";
+import { v4 as uuidv4 } from "uuid";
 import sharp from "sharp";
 import { Request, Response, NextFunction } from "express";
+import fs from "fs/promises";
 
-const storage = multer.diskStorage({
-  destination: "uploads/courses/",
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    const filename = `${uuidv4()}${ext}`;
-    cb(null, filename);
-  },
-});
+const uploadDir = "uploads/courses";
 
-const fileFilter = (
-  req: Request,
-  file: Express.Multer.File,
-  cb: multer.FileFilterCallback
-) => {
+const storage = multer.memoryStorage();
+
+const fileFilter: multer.Options["fileFilter"] = (req, file, cb) => {
   if (file.mimetype.startsWith("image/")) {
     cb(null, true);
   } else {
-    cb(new Error("Разрешены только изображения"));
+    cb(new Error("Only image files are allowed"));
   }
 };
 
-export const upload = multer({
-  storage,
-  fileFilter,
-  limits: { fileSize: 5 * 1024 * 1024 },
-});
+export const upload = multer({ storage, fileFilter });
 
 export const processImage = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  if (!req.file) return next();
+  if (!req.file) {
+    return next();
+  }
 
   try {
-    const filePath = req.file.path;
-    await sharp(filePath).resize(800).jpeg({ quality: 80 }).toFile(filePath);
+    await fs.mkdir(uploadDir, { recursive: true });
+    const ext = path.extname(req.file.originalname) || ".jpeg";
+    const newFilename = `compressed-${uuidv4()}${ext}`;
+    const outputPath = path.join(uploadDir, newFilename);
+
+    await sharp(req.file.buffer)
+      .resize({
+        width: 800,
+        withoutEnlargement: true,
+        fit: "inside",
+      })
+      .toFormat("jpeg")
+      .jpeg({ quality: 80 })
+      .toFile(outputPath);
+
+    req.file.filename = newFilename;
+    req.file.path = outputPath;
+
     next();
   } catch (error) {
     console.error("Ошибка обработки изображения:", error);
-    res.status(500).json({ error: "Ошибка обработки изображения" });
+    next(error);
   }
 };

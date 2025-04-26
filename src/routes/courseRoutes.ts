@@ -22,6 +22,7 @@ router.post(
 router.get("/courses", getAllCourses);
 router.get("/courses/:id", getCourseById);
 router.put("/courses/:id", authenticateJWT, updateCourse);
+router.patch("/courses/:id", authenticateJWT, updateCourse);
 router.delete("/courses/:id", authenticateJWT, deleteCourse);
 
 export default router;
