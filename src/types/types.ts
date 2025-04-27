@@ -19,15 +19,15 @@ export interface ITeacher {
 }
 
 export interface ICourse {
-  _id: Types.ObjectId;
   title: string;
   slug: string;
-  description?: string;
+  description: string;
   price: number;
   image: string;
   category: string;
-  level: 'beginner' | 'intermediate' | 'advanced';
+  level: "beginner" | "intermediate" | "advanced";
   published: boolean;
   author: Types.ObjectId;
   createdAt: Date;
+  tags: Types.ObjectId[];
 }

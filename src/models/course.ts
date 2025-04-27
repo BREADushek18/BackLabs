@@ -18,6 +18,7 @@ const courseSchema = new Schema<ICourse>({
   published: { type: Boolean, default: false },
   author: { type: Schema.Types.ObjectId, ref: "Teacher", required: true },
   createdAt: { type: Date, default: Date.now },
+  tags: [{ type: Schema.Types.ObjectId, ref: "Tag" }],
 });
 
 courseSchema.pre("validate", function (next) {

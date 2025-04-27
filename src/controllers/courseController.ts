@@ -1,7 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import { CourseModel } from "../models/course";
+import { TagModel } from "../models/tag";
 import fs from "fs/promises";
 import path from "path";
+import mongoose from "mongoose";
 
 export const createCourse = async (req: Request, res: Response) => {
   try {
@@ -32,7 +34,8 @@ export const createCourse = async (req: Request, res: Response) => {
       category,
       level,
       image: req.file.filename,
-      author: req.userId, // <<< добавил!
+      author: req.userId,
+      tags: [],
     });
 
     await newCourse.save();
@@ -88,14 +91,14 @@ export const getAllCourses = async (
 export const getCourseById = async (req: Request, res: Response) => {
   try {
     const course = await CourseModel.findById(req.params.id);
-    if (!course) res.status(404).json({ error: "Курс не найден" });
+    if (!course) {
+      res.status(404).json({ error: "Курс не найден" });
+      return;
+    }
     res.status(200).json(course);
-    return;
   } catch {
     res.status(400).json({ error: "Ошибка получения курса" });
-    return;
   }
-  return;
 };
 
 export const updateCourse = async (req: Request, res: Response) => {
@@ -155,6 +158,8 @@ export const deleteCourse = async (req: Request, res: Response) => {
       const imagePath = path.join("uploads", "courses", course.image);
       await fs.unlink(imagePath).catch(() => null);
     }
+
+    await course.deleteOne();
 
     res.status(204).send();
   } catch (error) {
