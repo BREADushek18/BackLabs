@@ -30,4 +30,5 @@ export interface ICourse {
   author: Types.ObjectId;
   createdAt: Date;
   tags: Types.ObjectId[];
+  favoritesCount?: number;
 }

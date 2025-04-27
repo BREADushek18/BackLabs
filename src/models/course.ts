@@ -19,6 +19,10 @@ const courseSchema = new Schema<ICourse>({
   author: { type: Schema.Types.ObjectId, ref: "Teacher", required: true },
   createdAt: { type: Date, default: Date.now },
   tags: [{ type: Schema.Types.ObjectId, ref: "Tag" }],
+  favoritesCount: {
+    type: Number,
+    default: 0,
+  },
 });
 
 courseSchema.pre("validate", function (next) {
