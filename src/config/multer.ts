@@ -1,55 +1,50 @@
 import multer from "multer";
-import path from "path";
-import { v4 as uuidv4 } from "uuid";
-import sharp from "sharp";
 import { Request, Response, NextFunction } from "express";
+import { compressAndWatermarkImage } from "./sharp";
+import { v4 as uuidv4 } from "uuid";
 import fs from "fs/promises";
+import path from "path";
 
-const uploadDir = "uploads/courses";
-
-const storage = multer.memoryStorage();
-
-const fileFilter: multer.Options["fileFilter"] = (req, file, cb) => {
-  if (file.mimetype.startsWith("image/")) {
+export const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024,
+  },
+  fileFilter: (req, file, cb) => {
+    if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+      return cb(new Error("Пожалуйста, загрузите изображение"));
+    }
     cb(null, true);
-  } else {
-    cb(new Error("Only image files are allowed"));
-  }
-};
-
-export const upload = multer({ storage, fileFilter });
+  },
+});
 
 export const processImage = async (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  if (!req.file) {
-    return next();
-  }
-
   try {
-    await fs.mkdir(uploadDir, { recursive: true });
-    const ext = path.extname(req.file.originalname) || ".jpeg";
-    const newFilename = `compressed-${uuidv4()}${ext}`;
-    const outputPath = path.join(uploadDir, newFilename);
+    if (!req.file) {
+      return next();
+    }
 
-    await sharp(req.file.buffer)
-      .resize({
-        width: 800,
-        withoutEnlargement: true,
-        fit: "inside",
-      })
-      .toFormat("jpeg")
-      .jpeg({ quality: 80 })
-      .toFile(outputPath);
+    const filename = uuidv4() + ".jpg";
 
-    req.file.filename = newFilename;
-    req.file.path = outputPath;
+    const uploadDir = path.join("uploads", "watermarked");
+    try {
+      await fs.mkdir(uploadDir, { recursive: true });
+    } catch (err) {
+      console.error("Ошибка создания папки загрузки:", err);
+    }
+
+    await compressAndWatermarkImage(req.file.buffer, filename);
+
+    req.file.filename = filename;
+    req.body.image = filename;
 
     next();
   } catch (error) {
-    console.error("Ошибка обработки изображения:", error);
-    next(error);
+    console.error("Ошибка при обработке изображения:", error);
+    res.status(500).json({ message: "Ошибка при обработке изображения" });
   }
 };

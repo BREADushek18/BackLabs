@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { CourseFavouriteModel } from "../models/courseFavourite";
 import { CourseModel } from "../models/course";
-import mongoose from "mongoose";
 
 interface AuthRequest extends Request {
   userId?: string;

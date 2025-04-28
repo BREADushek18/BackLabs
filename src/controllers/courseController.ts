@@ -1,9 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { CourseModel } from "../models/course";
-import { TagModel } from "../models/tag";
 import fs from "fs/promises";
 import path from "path";
-import mongoose from "mongoose";
 
 export const createCourse = async (req: Request, res: Response) => {
   try {
@@ -157,6 +155,16 @@ export const deleteCourse = async (req: Request, res: Response) => {
     if (course.image) {
       const imagePath = path.join("uploads", "courses", course.image);
       await fs.unlink(imagePath).catch(() => null);
+    }
+
+    if (course.image) {
+      const imagePath = path.join("uploads", "watermarked", course.image);
+      try {
+        await fs.unlink(imagePath);
+        console.log("Удалено изображение:", imagePath);
+      } catch (err) {
+        console.error("Ошибка удаления изображения:", err);
+      }
     }
 
     await course.deleteOne();
