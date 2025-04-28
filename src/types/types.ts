@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import { Types } from 'mongoose';
 
 export interface IStudent {
   _id: string;
@@ -25,7 +25,7 @@ export interface ICourse {
   price: number;
   image: string;
   category: string;
-  level: "beginner" | "intermediate" | "advanced";
+  level: 'beginner' | 'intermediate' | 'advanced';
   published: boolean;
   author: Types.ObjectId;
   createdAt: Date;

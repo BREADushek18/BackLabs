@@ -1,9 +1,9 @@
-import { Router } from "express";
-import { pingController } from "../controllers/pingController";
-import { authenticateJWT } from "../middlewares/authMiddleware";
+import { Router } from 'express';
+import { pingController } from '../controllers/pingController';
+import { authenticateJWT } from '../middlewares/authMiddleware';
 
 const router = Router();
 
-router.get("/ping", authenticateJWT, pingController.ping);
+router.get('/ping', authenticateJWT, pingController.ping);
 
 export const pingRoutes = router;

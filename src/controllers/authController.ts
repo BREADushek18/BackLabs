@@ -1,19 +1,19 @@
-import { Request, Response } from "express";
-import { StudentModel } from "../models/student";
-import { TeacherModel } from "../models/teacher";
-import { authService } from "../services/authService";
-import { IStudent, ITeacher } from "../types/types";
+import { Request, Response } from 'express';
+import { StudentModel } from '../models/student';
+import { TeacherModel } from '../models/teacher';
+import { authService } from '../services/authService';
+import { IStudent, ITeacher } from '../types/types';
 
 const register = async (req: Request, res: Response) => {
   try {
     const { firstName, lastName, username, password, role } = req.body;
 
     if (!firstName || !lastName || !username || !password || !role) {
-      res.status(400).json({ error: "All fields are required" });
+      res.status(400).json({ error: 'All fields are required' });
     }
 
-    if (role !== "student" && role !== "teacher") {
-      res.status(400).json({ error: "Invalid role" });
+    if (role !== 'student' && role !== 'teacher') {
+      res.status(400).json({ error: 'Invalid role' });
     }
 
     const user = await authService.registerUser(
@@ -21,7 +21,7 @@ const register = async (req: Request, res: Response) => {
       lastName,
       username,
       password,
-      role
+      role,
     );
 
     const token = authService.generateToken(user._id.toString(), role);
@@ -38,17 +38,17 @@ const login = async (req: Request, res: Response) => {
 
   let user: IStudent | ITeacher | null;
 
-  if (role === "student") {
+  if (role === 'student') {
     user = (await StudentModel.findOne({ username })) as IStudent;
-  } else if (role === "teacher") {
+  } else if (role === 'teacher') {
     user = (await TeacherModel.findOne({ username })) as ITeacher;
   } else {
-    res.status(400).json({ error: "Invalid role" });
+    res.status(400).json({ error: 'Invalid role' });
     return;
   }
 
   if (!user || !(await user.comparePassword(password))) {
-    res.status(400).json({ error: "Invalid credentials" });
+    res.status(400).json({ error: 'Invalid credentials' });
     return;
   }
 
@@ -61,20 +61,20 @@ const getProfile = async (req: Request, res: Response) => {
     const { userId, role } = req;
 
     if (!userId || !role) {
-      res.status(401).json({ error: "Unauthorized" });
+      res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const model = role === "student" ? StudentModel : TeacherModel;
-    const user = await model.findById(userId).select("-password").lean();
+    const model = role === 'student' ? StudentModel : TeacherModel;
+    const user = await model.findById(userId).select('-password').lean();
 
     if (!user) {
-      res.status(404).json({ error: "User not found" });
+      res.status(404).json({ error: 'User not found' });
     }
 
     res.status(200).json({ ...user, role });
   } catch (err) {
-    console.error("Error in getProfile:", err);
-    res.status(500).json({ error: "Internal server error" });
+    console.error('Error in getProfile:', err);
+    res.status(500).json({ error: 'Internal server error' });
   }
   return;
 };
@@ -84,19 +84,19 @@ const deleteUser = async (req: Request, res: Response) => {
     const { userId, role } = req;
 
     if (!userId || !role) {
-      res.status(401).json({ error: "Unauthorized" });
+      res.status(401).json({ error: 'Unauthorized' });
     }
 
-    const model = role === "student" ? StudentModel : TeacherModel;
+    const model = role === 'student' ? StudentModel : TeacherModel;
     const result = await model.findByIdAndDelete(userId);
 
     if (!result) {
-      res.status(404).json({ error: "User not found" });
+      res.status(404).json({ error: 'User not found' });
     }
     res.status(204).send();
   } catch (err) {
-    console.error("Error in deleteUser:", err);
-    res.status(500).json({ error: "Internal server error" });
+    console.error('Error in deleteUser:', err);
+    res.status(500).json({ error: 'Internal server error' });
   }
   return;
 };

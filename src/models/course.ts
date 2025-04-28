@@ -1,6 +1,6 @@
-import mongoose, { Schema } from "mongoose";
-import slugify from "slugify";
-import { ICourse } from "../types/types";
+import mongoose, { Schema } from 'mongoose';
+import slugify from 'slugify';
+import { ICourse } from '../types/types';
 
 const courseSchema = new Schema<ICourse>({
   title: { type: String, required: true },
@@ -11,25 +11,25 @@ const courseSchema = new Schema<ICourse>({
   category: { type: String, required: true },
   level: {
     type: String,
-    enum: ["beginner", "intermediate", "advanced"],
-    default: "beginner",
+    enum: ['beginner', 'intermediate', 'advanced'],
+    default: 'beginner',
     required: true,
   },
   published: { type: Boolean, default: false },
-  author: { type: Schema.Types.ObjectId, ref: "Teacher", required: true },
+  author: { type: Schema.Types.ObjectId, ref: 'Teacher', required: true },
   createdAt: { type: Date, default: Date.now },
-  tags: [{ type: Schema.Types.ObjectId, ref: "Tag" }],
+  tags: [{ type: Schema.Types.ObjectId, ref: 'Tag' }],
   favoritesCount: {
     type: Number,
     default: 0,
   },
 });
 
-courseSchema.pre("validate", function (next) {
-  if (this.isModified("title")) {
+courseSchema.pre('validate', function (next) {
+  if (this.isModified('title')) {
     this.slug = slugify(this.title, { lower: true, strict: true });
   }
   next();
 });
 
-export const CourseModel = mongoose.model<ICourse>("Course", courseSchema);
+export const CourseModel = mongoose.model<ICourse>('Course', courseSchema);

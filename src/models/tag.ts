@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, model } from 'mongoose';
 
 export interface ITag {
   _id: string;
@@ -15,4 +15,4 @@ const tagSchema = new Schema<ITag>({
   createdAt: { type: Date, default: Date.now },
 });
 
-export const TagModel = model<ITag>("Tag", tagSchema);
+export const TagModel = model<ITag>('Tag', tagSchema);

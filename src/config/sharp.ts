@@ -1,14 +1,14 @@
-import sharp from "sharp";
-import path from "path";
-import fs from "fs/promises";
+import sharp from 'sharp';
+import path from 'path';
+import fs from 'fs/promises';
 
-const storageDirectory = "uploads/watermarked";
-const watermarkPath = "uploads/watermark.png";
+const storageDirectory = 'uploads/watermarked';
+const watermarkPath = 'uploads/watermark.png';
 const compressionLevel = 80;
 
 export const compressAndWatermarkImage = async (
   buffer: Buffer,
-  filename: string
+  filename: string,
 ) => {
   const outputPath = path.join(storageDirectory, filename);
 
@@ -17,7 +17,7 @@ export const compressAndWatermarkImage = async (
     const metadata = await image.metadata();
 
     if (!metadata.width || !metadata.height) {
-      throw new Error("Невозможно прочитать метаданные изображения");
+      throw new Error('Невозможно прочитать метаданные изображения');
     }
 
     const resizedWidth = Math.round(metadata.width * 0.2);
@@ -35,17 +35,17 @@ export const compressAndWatermarkImage = async (
       .composite([
         {
           input: watermarkResized,
-          gravity: "southeast",
-          blend: "over",
+          gravity: 'southeast',
+          blend: 'over',
         },
       ])
       .jpeg({ quality: compressionLevel })
       .toFile(outputPath);
 
-    console.log("Сохранено обработанное изображение:", outputPath);
+    console.log('Сохранено обработанное изображение:', outputPath);
     return filename;
   } catch (error) {
-    console.error("Ошибка обработки изображения:", error);
+    console.error('Ошибка обработки изображения:', error);
     throw error;
   }
 };

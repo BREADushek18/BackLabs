@@ -1,27 +1,27 @@
-import { Request, Response, NextFunction } from "express";
-import { CourseModel } from "../models/course";
-import fs from "fs/promises";
-import path from "path";
+import { Request, Response, NextFunction } from 'express';
+import { CourseModel } from '../models/course';
+import fs from 'fs/promises';
+import path from 'path';
 
 export const createCourse = async (req: Request, res: Response) => {
   try {
     const { title, description, price, category, level } = req.body;
 
     if (!title || !description || !price || !category || !level || !req.file) {
-      res.status(400).json({ error: "Недостаточно данных" });
+      res.status(400).json({ error: 'Недостаточно данных' });
       return;
     }
 
-    if (req.role !== "teacher") {
+    if (req.role !== 'teacher') {
       res
         .status(403)
-        .json({ error: "Только преподаватели могут создавать курсы" });
+        .json({ error: 'Только преподаватели могут создавать курсы' });
       return;
     }
 
     const numericPrice = Number(price);
     if (isNaN(numericPrice)) {
-      res.status(400).json({ error: "Цена должна быть числом" });
+      res.status(400).json({ error: 'Цена должна быть числом' });
       return;
     }
 
@@ -40,21 +40,21 @@ export const createCourse = async (req: Request, res: Response) => {
 
     res.status(201).json(newCourse);
   } catch (error) {
-    console.error("Ошибка создания курса:", error);
-    res.status(500).json({ error: "Ошибка сервера" });
+    console.error('Ошибка создания курса:', error);
+    res.status(500).json({ error: 'Ошибка сервера' });
   }
 };
 
 export const getAllCourses = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const {
-      page = "1",
-      limit = "10",
-      search = "",
+      page = '1',
+      limit = '10',
+      search = '',
       category,
       level,
     } = req.query;
@@ -64,7 +64,7 @@ export const getAllCourses = async (
     const skip = (pageNumber - 1) * limitNumber;
 
     const query: any = {};
-    if (search) query.title = { $regex: search, $options: "i" };
+    if (search) query.title = { $regex: search, $options: 'i' };
     if (category) query.category = category;
     if (level) query.level = level;
 
@@ -90,80 +90,80 @@ export const getCourseById = async (req: Request, res: Response) => {
   try {
     const course = await CourseModel.findById(req.params.id);
     if (!course) {
-      res.status(404).json({ error: "Курс не найден" });
+      res.status(404).json({ error: 'Курс не найден' });
       return;
     }
     res.status(200).json(course);
   } catch {
-    res.status(400).json({ error: "Ошибка получения курса" });
+    res.status(400).json({ error: 'Ошибка получения курса' });
   }
 };
 
 export const updateCourse = async (req: Request, res: Response) => {
   try {
-    if (req.role !== "teacher") {
+    if (req.role !== 'teacher') {
       res
         .status(403)
-        .json({ error: "Только преподаватели могут обновлять курсы" });
+        .json({ error: 'Только преподаватели могут обновлять курсы' });
       return;
     }
 
     const course = await CourseModel.findById(req.params.id);
     if (!course) {
-      res.status(404).json({ error: "Курс не найден" });
+      res.status(404).json({ error: 'Курс не найден' });
       return;
     }
 
     if (course.author.toString() !== req.userId) {
-      res.status(403).json({ error: "Вы можете обновлять только свои курсы" });
+      res.status(403).json({ error: 'Вы можете обновлять только свои курсы' });
       return;
     }
 
     const updatedCourse = await CourseModel.findByIdAndUpdate(
       req.params.id,
       req.body,
-      { new: true }
+      { new: true },
     );
 
     res.status(200).json(updatedCourse);
   } catch (error) {
-    console.error("Ошибка обновления курса:", error);
-    res.status(400).json({ error: "Ошибка обновления курса" });
+    console.error('Ошибка обновления курса:', error);
+    res.status(400).json({ error: 'Ошибка обновления курса' });
   }
 };
 
 export const deleteCourse = async (req: Request, res: Response) => {
   try {
-    if (req.role !== "teacher") {
+    if (req.role !== 'teacher') {
       res
         .status(403)
-        .json({ error: "Только преподаватели могут удалять курсы" });
+        .json({ error: 'Только преподаватели могут удалять курсы' });
       return;
     }
 
     const course = await CourseModel.findById(req.params.id);
     if (!course) {
-      res.status(404).json({ error: "Курс не найден" });
+      res.status(404).json({ error: 'Курс не найден' });
       return;
     }
 
     if (course.author.toString() !== req.userId) {
-      res.status(403).json({ error: "Вы можете удалять только свои курсы" });
+      res.status(403).json({ error: 'Вы можете удалять только свои курсы' });
       return;
     }
 
     if (course.image) {
-      const imagePath = path.join("uploads", "courses", course.image);
+      const imagePath = path.join('uploads', 'courses', course.image);
       await fs.unlink(imagePath).catch(() => null);
     }
 
     if (course.image) {
-      const imagePath = path.join("uploads", "watermarked", course.image);
+      const imagePath = path.join('uploads', 'watermarked', course.image);
       try {
         await fs.unlink(imagePath);
-        console.log("Удалено изображение:", imagePath);
+        console.log('Удалено изображение:', imagePath);
       } catch (err) {
-        console.error("Ошибка удаления изображения:", err);
+        console.error('Ошибка удаления изображения:', err);
       }
     }
 
@@ -171,7 +171,7 @@ export const deleteCourse = async (req: Request, res: Response) => {
 
     res.status(204).send();
   } catch (error) {
-    console.error("Ошибка удаления курса:", error);
-    res.status(400).json({ error: "Ошибка удаления курса" });
+    console.error('Ошибка удаления курса:', error);
+    res.status(400).json({ error: 'Ошибка удаления курса' });
   }
 };

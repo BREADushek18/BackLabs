@@ -1,6 +1,6 @@
-import { model, Schema } from "mongoose";
-import bcrypt from "bcrypt";
-import { IStudent } from "../types/types";
+import { model, Schema } from 'mongoose';
+import bcrypt from 'bcrypt';
+import { IStudent } from '../types/types';
 
 const studentSchema = new Schema<IStudent>({
   firstName: {
@@ -22,8 +22,8 @@ const studentSchema = new Schema<IStudent>({
   },
 });
 
-studentSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
+studentSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) return next();
 
   try {
     const salt = await bcrypt.genSalt(10);
@@ -35,9 +35,9 @@ studentSchema.pre("save", async function (next) {
 });
 
 studentSchema.methods.comparePassword = async function (
-  candidatePassword: string
+  candidatePassword: string,
 ) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
 
-export const StudentModel = model<IStudent>("Student", studentSchema);
+export const StudentModel = model<IStudent>('Student', studentSchema);

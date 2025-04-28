@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const MAX_RETRIES = 5;
 const RETRY_DELAY_MS = 3000;
@@ -9,7 +9,7 @@ const connectDB = async () => {
   while (attempts < MAX_RETRIES) {
     try {
       await mongoose.connect(process.env.MONGO_URI!);
-      console.log("MongoDB connected!");
+      console.log('MongoDB connected!');
       return;
     } catch (error) {
       attempts++;
@@ -18,7 +18,7 @@ const connectDB = async () => {
         console.log(`Retrying in ${RETRY_DELAY_MS / 1000} seconds...`);
         await new Promise((res) => setTimeout(res, RETRY_DELAY_MS));
       } else {
-        console.error("Max retries reached. Exiting.");
+        console.error('Max retries reached. Exiting.');
         process.exit(1);
       }
     }

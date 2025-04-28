@@ -1,9 +1,9 @@
-import multer from "multer";
-import { Request, Response, NextFunction } from "express";
-import { compressAndWatermarkImage } from "./sharp";
-import { v4 as uuidv4 } from "uuid";
-import fs from "fs/promises";
-import path from "path";
+import multer from 'multer';
+import { Request, Response, NextFunction } from 'express';
+import { compressAndWatermarkImage } from './sharp';
+import { v4 as uuidv4 } from 'uuid';
+import fs from 'fs/promises';
+import path from 'path';
 
 export const upload = multer({
   storage: multer.memoryStorage(),
@@ -12,7 +12,7 @@ export const upload = multer({
   },
   fileFilter: (req, file, cb) => {
     if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
-      return cb(new Error("Пожалуйста, загрузите изображение"));
+      return cb(new Error('Пожалуйста, загрузите изображение'));
     }
     cb(null, true);
   },
@@ -21,20 +21,20 @@ export const upload = multer({
 export const processImage = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     if (!req.file) {
       return next();
     }
 
-    const filename = uuidv4() + ".jpg";
+    const filename = uuidv4() + '.jpg';
 
-    const uploadDir = path.join("uploads", "watermarked");
+    const uploadDir = path.join('uploads', 'watermarked');
     try {
       await fs.mkdir(uploadDir, { recursive: true });
     } catch (err) {
-      console.error("Ошибка создания папки загрузки:", err);
+      console.error('Ошибка создания папки загрузки:', err);
     }
 
     await compressAndWatermarkImage(req.file.buffer, filename);
@@ -44,7 +44,7 @@ export const processImage = async (
 
     next();
   } catch (error) {
-    console.error("Ошибка при обработке изображения:", error);
-    res.status(500).json({ message: "Ошибка при обработке изображения" });
+    console.error('Ошибка при обработке изображения:', error);
+    res.status(500).json({ message: 'Ошибка при обработке изображения' });
   }
 };
