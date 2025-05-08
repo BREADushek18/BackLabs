@@ -2,16 +2,11 @@ import { Request, Response, NextFunction } from 'express';
 import { CourseModel } from '../models/course';
 import fs from 'fs/promises';
 import path from 'path';
+import { validateCourseInput } from '../utils/validateCourseInput';
+import { buildCourseFilters } from '../utils/buildCourseFilters';
 
 export const createCourse = async (req: Request, res: Response) => {
   try {
-    const { title, description, price, category, level } = req.body;
-
-    if (!title || !description || !price || !category || !level || !req.file) {
-      res.status(400).json({ error: 'Недостаточно данных' });
-      return;
-    }
-
     if (req.role !== 'teacher') {
       res
         .status(403)
@@ -19,11 +14,15 @@ export const createCourse = async (req: Request, res: Response) => {
       return;
     }
 
-    const numericPrice = Number(price);
-    if (isNaN(numericPrice)) {
-      res.status(400).json({ error: 'Цена должна быть числом' });
+    const validationError = validateCourseInput(req);
+    if (validationError) {
+      res.status(400).json({ error: validationError });
       return;
     }
+
+    const { title, description, price, category, level } = req.body;
+    const { filename } = req.file!;
+    const numericPrice = Number(price);
 
     const newCourse = new CourseModel({
       title,
@@ -31,7 +30,7 @@ export const createCourse = async (req: Request, res: Response) => {
       price: numericPrice,
       category,
       level,
-      image: req.file.filename,
+      image: filename,
       author: req.userId,
       tags: [],
     });
@@ -51,22 +50,13 @@ export const getAllCourses = async (
   next: NextFunction,
 ) => {
   try {
-    const {
-      page = '1',
-      limit = '10',
-      search = '',
-      category,
-      level,
-    } = req.query;
+    const { page = '1', limit = '10' } = req.query;
 
     const pageNumber = parseInt(page as string);
     const limitNumber = parseInt(limit as string);
     const skip = (pageNumber - 1) * limitNumber;
 
-    const query: any = {};
-    if (search) query.title = { $regex: search, $options: 'i' };
-    if (category) query.category = category;
-    if (level) query.level = level;
+    const query = buildCourseFilters(req.query);
 
     const courses = await CourseModel.find(query)
       .sort({ createdAt: -1 })
@@ -153,17 +143,18 @@ export const deleteCourse = async (req: Request, res: Response) => {
     }
 
     if (course.image) {
-      const imagePath = path.join('uploads', 'courses', course.image);
-      await fs.unlink(imagePath).catch(() => null);
-    }
+      const paths = [
+        path.join('uploads', 'courses', course.image),
+        path.join('uploads', 'watermarked', course.image),
+      ];
 
-    if (course.image) {
-      const imagePath = path.join('uploads', 'watermarked', course.image);
-      try {
-        await fs.unlink(imagePath);
-        console.log('Удалено изображение:', imagePath);
-      } catch (err) {
-        console.error('Ошибка удаления изображения:', err);
+      for (const filePath of paths) {
+        try {
+          await fs.unlink(filePath);
+          console.log('Удалено изображение:', filePath);
+        } catch (err) {
+          console.error('Ошибка удаления изображения:', err);
+        }
       }
     }
 
