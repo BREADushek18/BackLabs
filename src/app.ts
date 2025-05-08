@@ -6,6 +6,7 @@ import { pingRoutes } from './routes/pingRoutes';
 import courseRoutes from './routes/courseRoutes';
 import tagRoutes from './routes/tagRoutes';
 import courseFavouriteRoutes from './routes/courseFavouriteRoutes';
+import lessonRoutes from './routes/lessonRoutes';
 
 dotenv.config();
 const PORT = process.env.PORT || 3000;
@@ -20,6 +21,7 @@ app.use('/api', pingRoutes);
 app.use('/api', courseRoutes);
 app.use('/api', tagRoutes);
 app.use('/course-favourites', courseFavouriteRoutes);
+app.use('/api/lessons', lessonRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

@@ -32,3 +32,13 @@ export interface ICourse {
   tags: Types.ObjectId[];
   favoritesCount?: number;
 }
+
+export interface ILesson extends Document {
+  title: string;
+  content: string;
+  videoUrl?: string;
+  course: Types.ObjectId;
+  order: number;
+  createdAt: Date;
+  author: Types.ObjectId;
+}
