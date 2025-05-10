@@ -1,12 +1,5 @@
 import { Schema, model } from 'mongoose';
-
-export interface ITag {
-  _id: string;
-  name: string;
-  slug: string;
-  description: string;
-  createdAt: Date;
-}
+import { ITag } from '../types/types';
 
 const tagSchema = new Schema<ITag>({
   name: { type: String, required: true },

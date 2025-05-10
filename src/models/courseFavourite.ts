@@ -1,9 +1,5 @@
 import mongoose, { Schema, model, Document } from 'mongoose';
-
-export interface ICourseFavourite extends Document {
-  userId: Schema.Types.ObjectId;
-  courseId: Schema.Types.ObjectId;
-}
+import { ICourseFavourite } from '../types/types';
 
 const courseFavouriteSchema = new Schema<ICourseFavourite>(
   {

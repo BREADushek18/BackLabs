@@ -33,6 +33,19 @@ export interface ICourse {
   favoritesCount?: number;
 }
 
+export interface ICourseFavourite extends Document {
+  userId: Types.ObjectId;
+  courseId: Types.ObjectId;
+}
+
+export interface ITag {
+  _id: string;
+  name: string;
+  slug: string;
+  description: string;
+  createdAt: Date;
+}
+
 export interface ILesson extends Document {
   title: string;
   content: string;
@@ -41,4 +54,12 @@ export interface ILesson extends Document {
   order: number;
   createdAt: Date;
   author: Types.ObjectId;
+}
+
+export interface IComment {
+  user: Types.ObjectId;
+  userModel: 'Student' | 'Teacher';
+  lesson: Types.ObjectId;
+  text: string;
+  createdAt: Date;
 }
