@@ -63,3 +63,10 @@ export interface IComment {
   text: string;
   createdAt: Date;
 }
+
+export interface IEnrollment extends Document {
+  student: Types.ObjectId;
+  course: Types.ObjectId;
+  completedLessons: Types.ObjectId[];
+  createdAt: Date;
+}

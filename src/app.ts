@@ -8,6 +8,7 @@ import tagRoutes from './routes/tagRoutes';
 import courseFavouriteRoutes from './routes/courseFavouriteRoutes';
 import lessonRoutes from './routes/lessonRoutes';
 import commentRoutes from './routes/commentRoutes';
+import enrollmentRoutes from './routes/enrollmentRoutes';
 
 dotenv.config();
 const PORT = process.env.PORT || 3000;
@@ -21,9 +22,10 @@ app.use('/api/auth', authRoutes);
 app.use('/api', pingRoutes);
 app.use('/api', courseRoutes);
 app.use('/api', tagRoutes);
-app.use('/course-favourites', courseFavouriteRoutes);
+app.use('/api/course-favourites', courseFavouriteRoutes);
 app.use('/api/lessons', lessonRoutes);
 app.use('/api/comments', commentRoutes);
+app.use('/api/enrollments', enrollmentRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

@@ -45,13 +45,23 @@ Backend-приложение для образовательной платфо�
 - \`PATCH /api/lessons/:id\` — обновить урок (только автор)
 - \`DELETE /api/lessons/:id\` — удалить урок (только автор)
 
-### 💬 Комментарии (с полиморфной ссылкой на автора)
+### Комментарии (с полиморфной ссылкой на автора)
 
 - \`POST /api/comments\` — создать комментарий к уроку (студент или преподаватель)
 - \`GET /api/comments/lesson/:lessonId\` — получить комментарии к уроку (с информацией об уроке)
 - \`GET /api/comments/:id\` — получить комментарий по ID
 - \`PATCH /api/comments/:id\` — обновить комментарий (только автор)
 - \`DELETE /api/comments/:id\` — удалить комментарий (автор или преподаватель курса)
+
+### Записи на курсы
+
+- \`POST /api/enrollments/enroll/:courseId\` — записаться на курс
+- \`GET /api/enrollments/my-enrollments\` — получить список всех своих записей на курсы
+- \`DELETE /api/enrollments/enroll/:courseId\` — отменить запись на курс
+- \`POST /api/enrollments/progress/:courseId/lesson/:lessonId\` — отметить урок завершённым (только студент, записанный на курс)
+- \`DELETE /api/enrollments/progress/:courseId/lesson/:lessonId\` — отменить завершение урока (только студент, записанный на курс)
+- \`GET /api/enrollments/progress/:courseId\` — получить прогресс по курсу (только студент, записанный на курс)
+- \`GET /api/enrollments/course/:courseId/students\` — получить количество студентов, записанных на курс
 
 ---
 
