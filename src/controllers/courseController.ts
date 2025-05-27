@@ -1,9 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { CourseModel } from '../models/course';
-import fs from 'fs/promises';
-import path from 'path';
 import { validateCourseInput } from '../utils/validateCourseInput';
 import { buildCourseFilters } from '../utils/buildCourseFilters';
+import { deleteCourseImages } from '../utils/deleteCourseImages';
 
 export const createCourse = async (req: Request, res: Response) => {
   try {
@@ -143,19 +142,7 @@ export const deleteCourse = async (req: Request, res: Response) => {
     }
 
     if (course.image) {
-      const paths = [
-        path.join('uploads', 'courses', course.image),
-        path.join('uploads', 'watermarked', course.image),
-      ];
-
-      for (const filePath of paths) {
-        try {
-          await fs.unlink(filePath);
-          console.log('Удалено изображение:', filePath);
-        } catch (err) {
-          console.error('Ошибка удаления изображения:', err);
-        }
-      }
+      await deleteCourseImages(course.image);
     }
 
     await course.deleteOne();
