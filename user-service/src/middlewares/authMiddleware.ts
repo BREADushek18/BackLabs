@@ -1,0 +1,47 @@
+import { Request, Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
+
+declare global {
+  namespace Express {
+    interface Request {
+      file?: File;
+      userId?: string;
+      role?: 'student' | 'teacher';
+    }
+  }
+}
+
+interface JwtPayload {
+  userId: string;
+  role: 'student' | 'teacher';
+}
+
+export const authenticateJWT = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    res.status(401).json({ error: 'Unauthorized' });
+    return;
+  }
+
+  const token = authHeader.split(' ')[1];
+
+  try {
+    const secret = process.env.JWT_SECRET;
+    if (!secret) throw new Error('JWT secret not defined');
+
+    const decoded = jwt.verify(token, secret) as JwtPayload;
+
+    req.userId = decoded.userId;
+    req.role = decoded.role;
+
+    next();
+  } catch (err) {
+    res.status(403).json({ error: 'Invalid token' });
+    return;
+  }
+};
