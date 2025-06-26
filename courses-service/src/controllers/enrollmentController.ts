@@ -3,6 +3,28 @@ import { EnrollmentModel } from '../models/enrollment';
 import { CourseModel } from '../models/course';
 import Lesson from '../models/lesson';
 import mongoose from 'mongoose';
+import { getChannel } from '../utils/rabbitmq';
+import { v4 as uuidv4 } from 'uuid';
+
+export async function enroll(req: Request, res: Response) {
+  const { userId, courseId } = req.body;
+  const enrollmentId = uuidv4();
+
+  const msg = { enrollmentId, userId, courseId, timestamp: Date.now() };
+
+  try {
+    const channel = await getChannel();
+    await channel.assertQueue('enroll_queue', { durable: true }); // рекомендуемая практика
+    channel.sendToQueue('enroll_queue', Buffer.from(JSON.stringify(msg)), {
+      persistent: true,
+    });
+  } catch (error) {
+    console.error('Failed to send message to queue', error);
+    return res.status(500).json({ error: 'Ошибка отправки в очередь' });
+  }
+
+  return res.status(200).json({ enrollmentId, status: 'queued' });
+}
 
 export const enrollInCourse = async (req: Request, res: Response) => {
   try {

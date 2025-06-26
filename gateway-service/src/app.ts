@@ -7,6 +7,9 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+console.log('USER_SERVICE_URL:', process.env.USER_SERVICE_URL);
+console.log('COURSE_SERVICE_URL:', process.env.COURSE_SERVICE_URL);
+
 app.use(
   '/api/users',
   createProxyMiddleware({

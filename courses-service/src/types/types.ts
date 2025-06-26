@@ -52,3 +52,10 @@ export interface IEnrollment extends Document {
   completedLessons: Types.ObjectId[];
   createdAt: Date;
 }
+
+export interface IEnrollmentStatus {
+  enrollmentId: string;
+  status: 'queued' | 'processing' | 'done' | 'error';
+  error?: string | null;
+  updatedAt?: Date;
+}

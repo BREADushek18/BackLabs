@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo
+    container_name: mongodb
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo-data:/data/db
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - '5672:5672' # порт RabbitMQ
+      - '15672:15672'  
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
+  user-service:
+    build:
+      context: ./user-service
+    container_name: user-service
+    ports:
+      - '3001:3001'
+    environment:
+      - PORT=3001
+      - MONGO_URL=mongodb://mongo:27017/edu
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      - mongo
+      - rabbitmq
+
+  courses-service:
+    build:
+      context: ./courses-service
+    container_name: courses-service
+    ports:
+      - '3002:3002'
+    environment:
+      - PORT=3002
+      - MONGO_URL=mongodb://mongo:27017/edu
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+    depends_on:
+      - mongo
+      - rabbitmq
+
+  gateway-service:
+    build:
+      context: ./gateway-service
+    container_name: gateway-service
+    ports:
+      - '3000:3000'
+    environment:
+      - PORT=3000
+      - USER_SERVICE_URL=http://user-service:3001
+      - COURSE_SERVICE_URL=http://courses-service:3002
+    depends_on:
+      - user-service
+      - courses-service
+
+
+volumes:
+  mongo-data:

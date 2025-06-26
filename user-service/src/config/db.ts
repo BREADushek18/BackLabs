@@ -4,11 +4,17 @@ const MAX_RETRIES = 5;
 const RETRY_DELAY_MS = 3000;
 
 const connectDB = async () => {
+  const MONGO_URL = process.env.MONGO_URL;
+
+  if (!MONGO_URL) {
+    throw new Error('MONGO_URL is not defined in environment variables');
+  }
+
   let attempts = 0;
 
   while (attempts < MAX_RETRIES) {
     try {
-      await mongoose.connect(process.env.MONGO_URI!);
+      await mongoose.connect(MONGO_URL);
       console.log('MongoDB connected!');
       return;
     } catch (error) {

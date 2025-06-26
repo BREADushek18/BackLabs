@@ -1,0 +1,15 @@
+FROM node
+WORKDIR /app
+
+COPY ../tsconfig.json ./tsconfig.json
+COPY package*.json ./
+COPY tsconfig.json ./tsconfig.local.json  
+COPY src ./src
+
+RUN npm install
+RUN mv tsconfig.local.json tsconfig.json
+
+COPY . .
+
+EXPOSE 3001
+CMD ["npm", "run", "dev"]
