@@ -1,6 +1,8 @@
 import express from 'express';
 import { createProxyMiddleware } from 'http-proxy-middleware';
 import dotenv from 'dotenv';
+import { initRabbit } from './utils/rabbitmq';
+import { startGatewayConsumer } from './rabbit/consumer';
 
 dotenv.config();
 
@@ -17,6 +19,7 @@ app.use(
     changeOrigin: true,
   }),
 );
+
 app.use(
   '/api/courses',
   createProxyMiddleware({
@@ -25,6 +28,13 @@ app.use(
   }),
 );
 
-app.listen(PORT, () => {
-  console.log(`API Gateway running on http://localhost:${PORT}`);
-});
+async function start() {
+  await initRabbit();
+  await startGatewayConsumer();
+
+  app.listen(PORT, () => {
+    console.log(`API Gateway running on http://localhost:${PORT}`);
+  });
+}
+
+start();

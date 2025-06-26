@@ -3,7 +3,7 @@ import { EnrollmentModel } from '../models/enrollment';
 import { CourseModel } from '../models/course';
 import Lesson from '../models/lesson';
 import mongoose from 'mongoose';
-import { getChannel } from '../utils/rabbitmq';
+import { getChannel, EXCHANGE_NAME } from '../utils/rabbitmq';
 import { v4 as uuidv4 } from 'uuid';
 
 export async function enroll(req: Request, res: Response) {
@@ -14,10 +14,16 @@ export async function enroll(req: Request, res: Response) {
 
   try {
     const channel = await getChannel();
-    await channel.assertQueue('enroll_queue', { durable: true }); // рекомендуемая практика
-    channel.sendToQueue('enroll_queue', Buffer.from(JSON.stringify(msg)), {
-      persistent: true,
-    });
+    const ROUTING_KEY = 'enroll';
+
+    channel.publish(
+      EXCHANGE_NAME,
+      ROUTING_KEY,
+      Buffer.from(JSON.stringify(msg)),
+      {
+        persistent: true,
+      },
+    );
   } catch (error) {
     console.error('Failed to send message to queue', error);
     return res.status(500).json({ error: 'Ошибка отправки в очередь' });

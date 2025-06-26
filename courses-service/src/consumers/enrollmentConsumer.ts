@@ -1,14 +1,18 @@
-import { getChannel } from '../utils/rabbitmq';
+import { getChannel, EXCHANGE_NAME } from '../utils/rabbitmq';
 import EnrollmentStatusModel from '../models/enrollmentStatus';
 import { EnrollmentModel } from '../models/enrollment';
 import { ConsumeMessage } from 'amqplib';
 
+const QUEUE_NAME = 'enroll_queue';
+const ROUTING_KEY = 'enroll';
+
 export async function startEnrollmentConsumer() {
   const channel = await getChannel();
 
-  await channel.assertQueue('enroll_queue', { durable: true });
+  await channel.assertQueue(QUEUE_NAME, { durable: true });
+  await channel.bindQueue(QUEUE_NAME, EXCHANGE_NAME, ROUTING_KEY);
 
-  channel.consume('enroll_queue', async (msg: ConsumeMessage | null) => {
+  channel.consume(QUEUE_NAME, async (msg: ConsumeMessage | null) => {
     if (!msg) return;
 
     let parsed;
@@ -58,5 +62,5 @@ export async function startEnrollmentConsumer() {
     }
   });
 
-  console.log('Enrollment consumer listening on enroll_queue');
+  console.log(`Enrollment consumer listening on queue ${QUEUE_NAME}`);
 }

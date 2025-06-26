@@ -28,7 +28,7 @@ services:
     environment:
       - PORT=3001
       - MONGO_URL=mongodb://mongo:27017/edu
-      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+      - RABBITMQ_URL=amqp://rabbitmq
     depends_on:
       - mongo
       - rabbitmq
@@ -42,7 +42,7 @@ services:
     environment:
       - PORT=3002
       - MONGO_URL=mongodb://mongo:27017/edu
-      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
+      - RABBITMQ_URL=amqp://rabbitmq
     depends_on:
       - mongo
       - rabbitmq
@@ -57,6 +57,7 @@ services:
       - PORT=3000
       - USER_SERVICE_URL=http://user-service:3001
       - COURSE_SERVICE_URL=http://courses-service:3002
+      - RABBITMQ_URL=amqp://guest:guest@rabbitmq:5672
     depends_on:
       - user-service
       - courses-service

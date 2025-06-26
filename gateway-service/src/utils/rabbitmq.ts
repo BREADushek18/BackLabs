@@ -1,14 +1,15 @@
 import amqp from 'amqplib';
 
-const EXCHANGE_NAME = 'edu_exchange';
+export const EXCHANGE_NAME = 'edu_exchange';
 
 let connection: amqp.Connection | null = null;
+let channel: amqp.Channel | null = null;
 
 export const initRabbit = async (): Promise<amqp.Connection> => {
+  if (connection) return connection;
+
   const RABBITMQ_URL = process.env.RABBITMQ_URL;
-  if (!RABBITMQ_URL) {
-    throw new Error('RABBITMQ_URL is not defined in environment variables');
-  }
+  if (!RABBITMQ_URL) throw new Error('RABBITMQ_URL is not defined');
 
   let attempts = 0;
   const maxAttempts = 20;
@@ -17,6 +18,8 @@ export const initRabbit = async (): Promise<amqp.Connection> => {
     try {
       connection = await amqp.connect(RABBITMQ_URL);
       console.log('RabbitMQ connected!');
+      channel = await connection.createChannel();
+      await channel.assertExchange(EXCHANGE_NAME, 'direct', { durable: true });
       return connection;
     } catch (error) {
       attempts++;
@@ -30,23 +33,14 @@ export const initRabbit = async (): Promise<amqp.Connection> => {
       }
     }
   }
+
   throw new Error('Failed to connect to RabbitMQ');
 };
 
-export const getRabbitConnection = (): amqp.Connection => {
-  if (!connection) {
-    throw new Error('RabbitMQ connection not established yet.');
-  }
-  return connection;
-};
-
 export const getChannel = async (): Promise<amqp.Channel> => {
-  const conn = getRabbitConnection();
-  const channel = await conn.createChannel();
-
-  await channel.assertExchange(EXCHANGE_NAME, 'direct', { durable: true });
-
+  if (!channel) {
+    if (!connection) await initRabbit();
+    if (!channel) throw new Error('Channel not initialized');
+  }
   return channel;
 };
-
-export { EXCHANGE_NAME };

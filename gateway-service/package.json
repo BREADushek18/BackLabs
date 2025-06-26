@@ -8,6 +8,7 @@
     "dev": "nodemon --exec ts-node --files --transpileOnly src/app.ts"
   },
   "dependencies": {
+    "amqplib": "^0.10.8",
     "dotenv": "^16.4.7",
     "express": "^5.1.0",
     "http-proxy-middleware": "^3.0.5"
